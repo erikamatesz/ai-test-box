@@ -2,7 +2,7 @@ from typing import Any, Dict
 from .base import BaseUseCase
 from providers.base import BaseProvider
 
-# Default system prompt (can be overridden by the UI via kwargs["system"])
+# Can be overridden by the UI via kwargs["system"])
 SUMMARY_SYSTEM = "You are an assistant that summarizes texts into clear, highlighting the key points."
 
 class SummarizeUseCase(BaseUseCase):

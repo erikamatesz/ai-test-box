@@ -7,6 +7,7 @@ try:
 except Exception:
     AzureOpenAI = None
 
+
 class AzureOpenAIProvider(BaseProvider):
     def __init__(self):
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
@@ -24,8 +25,7 @@ class AzureOpenAIProvider(BaseProvider):
     def generate(self, prompt: str, system: str | None = None) -> Dict[str, Any]:
         if not self.client:
             raise RuntimeError(
-                "Azure OpenAI is not properly configured. "
-                "Please check environment variables and dependencies."
+                "Azure OpenAI is not properly configured. Please check environment variables and dependencies."
             )
 
         messages = []
@@ -33,12 +33,12 @@ class AzureOpenAIProvider(BaseProvider):
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
-        params = {
-            "model": self.deployment,
-            "messages": messages,
-        }
+        params = {"model": self.deployment, "messages": messages}
 
-        resp = self.client.chat.completions.create(**params)
+        try:
+            resp = self.client.chat.completions.create(**params)
+        except Exception as e:
+            raise RuntimeError(f"Failed to call Azure OpenAI: {e}") from e
 
         text = resp.choices[0].message.content if resp and resp.choices else ""
 

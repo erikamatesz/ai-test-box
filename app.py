@@ -4,20 +4,20 @@ load_dotenv()
 import os
 import streamlit as st
 
-# Providers
 from providers.azure_openai import AzureOpenAIProvider
+from providers.gemini import GeminiProvider
+from providers.bedrock import AWSBedrockProvider
 
-# Use cases
 from use_cases.chat import ChatUseCase
 from use_cases.summarize import SummarizeUseCase
 
 st.set_page_config(page_title="AI Test Box", page_icon="🚀", layout="centered")
-
 st.title("🚀 AI Test Box")
 
-# Mapping of providers and use cases
 PROVIDERS = {
     "Azure OpenAI": AzureOpenAIProvider,
+    "Google Gemini": GeminiProvider,
+    "AWS Bedrock": AWSBedrockProvider,
 }
 
 USE_CASES = {
@@ -25,7 +25,6 @@ USE_CASES = {
     "Summarize": SummarizeUseCase,
 }
 
-# --- State reset when switching Provider / Use Case ---
 if "last_provider" not in st.session_state:
     st.session_state["last_provider"] = None
 if "last_use_case" not in st.session_state:
@@ -36,7 +35,6 @@ with st.sidebar:
     provider_name = st.selectbox("Provider", list(PROVIDERS.keys()), key="provider_select")
     use_case_name = st.selectbox("Use Case", list(USE_CASES.keys()), key="use_case_select")
 
-    # Auto reset when switching provider/use case
     if (
         st.session_state["last_provider"] != provider_name
         or st.session_state["last_use_case"] != use_case_name
@@ -49,22 +47,44 @@ with st.sidebar:
     st.session_state["last_provider"] = provider_name
     st.session_state["last_use_case"] = use_case_name
 
-    # Basic credential detection
     creds_ok = False
+    missing_vars = []
+
     if provider_name == "Azure OpenAI":
-        creds_ok = bool(
-            os.getenv("AZURE_OPENAI_API_KEY")
-            and os.getenv("AZURE_OPENAI_ENDPOINT")
-            and os.getenv("AZURE_OPENAI_DEPLOYMENT")
-        )
-    elif provider_name == "AWS Bedrock":
-        creds_ok = bool(os.getenv("AWS_DEFAULT_REGION") or os.getenv("AWS_REGION"))
+        required = [
+            "AZURE_OPENAI_API_KEY",
+            "AZURE_OPENAI_ENDPOINT",
+            "AZURE_OPENAI_DEPLOYMENT",
+            "AZURE_OPENAI_API_VERSION",
+        ]
+        creds_ok = all(os.getenv(v) for v in required)
+        missing_vars = [v for v in required if not os.getenv(v)]
+
     elif provider_name == "Google Gemini":
-        creds_ok = bool(os.getenv("GOOGLE_API_KEY"))
+        required = [
+            "GEMINI_API_KEY",
+            "GEMINI_MODEL",
+            "GEMINI_THINKING_BUDGET",
+        ]
+        creds_ok = all(os.getenv(v) for v in required)
+        missing_vars = [v for v in required if not os.getenv(v)]
+
+    elif provider_name == "AWS Bedrock":
+        required = [
+            "AWS_BEDROCK_API_KEY",
+            "AWS_BEDROCK_API_KEY_ID",
+            "AWS_REGION",
+            "AWS_BEDROCK_MODEL",
+            "AWS_BEDROCK_MAX_TOKENS",
+            "AWS_BEDROCK_TEMPERATURE",
+        ]
+        creds_ok = all(os.getenv(v) for v in required)
+        missing_vars = [v for v in required if not os.getenv(v)]
 
     st.markdown(f"**Credentials detected:** {'✅' if creds_ok else '⚠️ not detected'}")
+    if not creds_ok and missing_vars:
+        st.caption(f"Missing: {', '.join(missing_vars)}")
 
-# Instantiate objects
 ProviderClass = PROVIDERS[provider_name]
 UseCaseClass = USE_CASES[use_case_name]
 
@@ -73,7 +93,6 @@ use_case = UseCaseClass()
 
 st.subheader(f"{use_case_name} with {provider_name}")
 
-# Main inputs
 user_input = st.text_area(
     "Input",
     value=st.session_state.get("user_input", ""),
@@ -90,7 +109,6 @@ system_prompt = st.text_area(
 )
 st.session_state["system_prompt"] = system_prompt
 
-# --- Actions in the same row: Run | Clear | Show JSON ---
 c_run, c_clear, c_raw = st.columns([1, 1, 1.4])
 with c_run:
     run_btn = st.button("Run", type="primary", use_container_width=True)
@@ -111,7 +129,6 @@ if run_btn:
     else:
         with st.spinner("Generating..."):
             try:
-                # Each use case must return {"text": str, "raw": dict/obj}
                 sys = system_prompt.strip() or None
                 out = use_case.run(provider, user_input, system=sys)
                 st.session_state["result"] = out.get("text", "")

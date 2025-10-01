@@ -10,6 +10,7 @@ from providers.bedrock import AWSBedrockProvider
 
 from use_cases.chat import ChatUseCase
 from use_cases.summarize import SummarizeUseCase
+from use_cases.jobs import JobRequirementsUseCase
 
 st.set_page_config(page_title="AI Test Box", page_icon="🚀", layout="centered")
 st.title("🚀 AI Test Box")
@@ -23,6 +24,7 @@ PROVIDERS = {
 USE_CASES = {
     "Chat": ChatUseCase,
     "Summarize": SummarizeUseCase,
+    "Job Requirements": JobRequirementsUseCase,
 }
 
 if "last_provider" not in st.session_state:

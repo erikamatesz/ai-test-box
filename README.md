@@ -1,11 +1,11 @@
-# 🧠 AI Test Box
+# 🚀 AI Test Box
+
+AI Test Box is a modular generative AI playground built with Python and Streamlit.
+It provides a unified framework for testing and comparing multiple AI providers such as Azure OpenAI, Google Gemini, and AWS Bedrock through a consistent interface and a set of reusable use cases such as chat, summarization, and job analysis.
 
 <p align="center">
   <img src="assets/app_running.png" alt="AI Test Box running" width="600">
 </p>
-
-AI Test Box is a modular generative AI playground built with Python and Streamlit.
-It provides a unified framework for testing and comparing multiple AI providers such as Azure OpenAI, Google Gemini, and AWS Bedrock through a consistent interface and a set of reusable use cases such as chat, summarization, and job analysis.
 
 ## 📁 Project Structure
 

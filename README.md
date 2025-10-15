@@ -150,11 +150,11 @@ If you’d like to improve AI Test Box — by adding new providers, extending us
 
 1. Fork the repository.
 2. Create a new branch for your feature or fix:
-   git checkout -b feature/my-new-feature
+   `git checkout -b feature/my-new-feature`
 3. Make your changes and commit them:
-   git commit -m "Add new feature"
+   `git commit -m "Add new feature"`
 4. Push your branch:
-   git push origin feature/my-new-feature
+   `git push origin feature/my-new-feature`
 5. Open a Pull Request describing your contribution.
 
 Please ensure your code is clean, documented, and tested before submitting.
